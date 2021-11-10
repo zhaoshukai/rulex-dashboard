@@ -31,47 +31,130 @@ import Layout from '@/layout'
  * all roles can be accessed
  */
 export const constantRoutes = [
-  {
-    path: '/login',
-    component: () => import('@/views/login/index'),
-    hidden: true
-  },
+    {
+        path: '/login',
+        component: () => import ('@/views/login/index'),
+        hidden: true
+    },
 
-  {
-    path: '/404',
-    component: () => import('@/views/404'),
-    hidden: true
-  },
+    {
+        path: '/404',
+        component: () => import ('@/views/404'),
+        hidden: true
+    },
 
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/dashboard',
-    children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
-    }]
-  },
+    {
+        path: '/',
+        component: Layout,
+        redirect: '/dashboard',
+        children: [
+            {
+                path: 'dashboard',
+                name: 'Dashboard',
+                component: () => import ('@/views/dashboard/index'),
+                meta: {
+                    title: '系统首页',
+                    icon: 'el-icon-s-home'
+                }
+            }
+        ]
+    },
+
+    {
+        path: '/',
+        component: Layout,
+        children: [
+            {
+                path: 'inend',
+                name: 'InEnd',
+                component: () => import ('@/views/inend/index'),
+                meta: {
+                    title: '资源管理',
+                    icon: 'el-icon-s-unfold'
+                }
+            }
+        ]
+    }, {
+        path: '/',
+        component: Layout,
+        children: [
+            {
+                path: 'outend',
+                name: 'OutEnd',
+                component: () => import ('@/views/outend/index'),
+                meta: {
+                    title: '规则管理',
+                    icon: 'el-icon-s-grid'
+                }
+            }
+        ]
+    }, {
+        path: '/',
+        component: Layout,
+        children: [
+            {
+                path: 'target',
+                name: 'Target',
+                component: () => import ('@/views/target/index'),
+                meta: {
+                    title: '目标管理',
+                    icon: 'el-icon-files'
+                }
+            }
+        ]
+    }, {
+        path: '/',
+        component: Layout,
+        children: [
+            {
+                path: 'plugin',
+                name: 'Plugin',
+                component: () => import ('@/views/plugin/index'),
+                meta: {
+                    title: '插件管理',
+                    icon: 'el-icon-set-up'
+                }
+            }
+        ]
+    }, {
+        path: '/',
+        component: Layout,
+        redirect: '/driver',
+        children: [
+            {
+                path: 'driver',
+                name: 'Driver',
+                component: () => import ('@/views/driver/index'),
+                meta: {
+                    title: '驱动管理',
+                    icon: 'el-icon-orange'
+                }
+            }
+        ]
+    },
 
 
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+    // 404 page must be placed at the end !!!
+    {
+        path: '*',
+        redirect: '/404',
+        hidden: true
+    }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
+const createRouter = () => new Router({ // mode: 'history', // require service support
+    scrollBehavior: () => (
+        {y: 0}
+    ),
+    routes: constantRoutes
 })
 
 const router = createRouter()
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
-  const newRouter = createRouter()
-  router.matcher = newRouter.matcher // reset router
+    const newRouter = createRouter()
+    router.matcher = newRouter.matcher // reset router
 }
 
 export default router
