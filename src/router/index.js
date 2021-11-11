@@ -61,11 +61,12 @@ export const constantRoutes = [
     },
 
     {
-        path: '/',
+        path: '/inend',
         component: Layout,
+        redirect: '/inend',
         children: [
             {
-                path: 'inend',
+                path: '',
                 name: 'InEnd',
                 component: () => import ('@/views/inend/index'),
                 meta: {
@@ -75,8 +76,9 @@ export const constantRoutes = [
             }
         ]
     }, {
-        path: '/',
+        path: '/outend',
         component: Layout,
+        redirect: '/outend',
         children: [
             {
                 path: 'outend',
@@ -89,8 +91,9 @@ export const constantRoutes = [
             }
         ]
     }, {
-        path: '/',
+        path: '/target',
         component: Layout,
+        redirect: '/target',
         children: [
             {
                 path: 'target',
@@ -103,8 +106,9 @@ export const constantRoutes = [
             }
         ]
     }, {
-        path: '/',
+        path: '/plugin',
         component: Layout,
+        redirect: '/plugin',
         children: [
             {
                 path: 'plugin',
@@ -117,7 +121,7 @@ export const constantRoutes = [
             }
         ]
     }, {
-        path: '/',
+        path: '/driver',
         component: Layout,
         redirect: '/driver',
         children: [
