@@ -2,7 +2,69 @@
   <el-container style="height: 800px; border: 1px solid #eee">
     <el-main>
       <el-card class="box-card">
-        输入资源管理
+        <div slot="header" class="clearfix">
+          <span> 输入资源管理</span>
+        </div>
+        <el-button
+          type="primary"
+          @click="
+            () => {
+              this.createDialogVisible = true;
+            }
+          "
+          >新 建</el-button
+        >
+        <el-button type="success">刷 新</el-button>
+
+        <el-dialog title="" :visible.sync="createDialogVisible" width="800px">
+          <el-form :model="createForm">
+            <el-form-item label="资源名称" label-width="90px" label-position="left">
+              <el-input v-model="createForm.name" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="资源类型" label-width="90px" label-position="left">
+              <el-select v-model="createForm.type" placeholder="资源类型" filterable>
+                <el-option label="MQTT 协议桥接" value="MQTT"></el-option>
+                <el-option label="HTTP 协议接入" value="HTTP"></el-option>
+                <el-option label="UDP 协议输入" value="UDP"></el-option>
+                <el-option label="COAP 协议接入" value="COAP"></el-option>
+                <el-option label="GRPC 协议接入" value="GRPC"></el-option>
+                <el-option label="通用串口接入" value="UART_MODULE"></el-option>
+                <el-option
+                  label="MODBUS TCP MASTER 模式"
+                  value="MODBUS_TCP_MASTER"
+                ></el-option>
+                <el-option
+                  label="MODBUS RTU MASTER 模式"
+                  value="MODBUS_RTU_MASTER"
+                ></el-option>
+                <el-option label="SNMP 协议接入" value="SNMP_SERVER"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="资源配置" label-width="90px" label-position="left">
+              <v-jsoneditor
+                style="height: 400px"
+                v-model="createForm.config"
+                :options="options"
+              ></v-jsoneditor>
+            </el-form-item>
+
+            <el-form-item label="备注信息" label-width="90px" label-position="left">
+              <el-input v-model="createForm.description" autocomplete="off"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button
+              @click="
+                () => {
+                  this.createDialogVisible = false;
+                  this.createForm = {};
+                }
+              "
+              >取 消</el-button
+            >
+            <el-button type="primary" @click="createResource">提 交</el-button>
+          </div>
+        </el-dialog>
       </el-card>
       <el-table :data="tableData" border style="width: 100%">
         <el-table-column prop="id" label="UUID" width="340px"> </el-table-column>
@@ -11,11 +73,15 @@
           label="类型"
           width="200px"
           :filters="[
-            { text: 'MQTT1', value: 'MQTT1' },
-            { text: 'MQTT2', value: 'MQTT2' },
-            { text: 'MQTT3', value: 'MQTT3' },
-            { text: 'MQTT4', value: 'MQTT4' },
-            { text: 'MQTT5', value: 'MQTT5' },
+            { text: 'MQTT 协议桥接', value: 'MQTT' },
+            { text: 'HTTP 协议接入', value: 'HTTP' },
+            { text: 'UDP 协议输入', value: 'UDP' },
+            { text: 'COAP 协议接入', value: 'COAP' },
+            { text: 'GRPC 协议接入', value: 'GRPC' },
+            { text: '通用串口接入', value: 'UART_MODULE' },
+            { text: 'MODBUS TCP MASTER 模式', value: 'MODBUS_TCP_MASTER' },
+            { text: 'MODBUS RTU MASTER 模式', value: 'MODBUS_RTU_MASTER' },
+            { text: 'SNMP 协议接入', value: 'SNMP_SERVER' },
           ]"
           :filter-method="filterType"
         >
@@ -37,7 +103,7 @@
           </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="250">
-          <template slot-scope="scope">
+          <template>
             <el-button size="mini" type="primary">详情</el-button>
             <el-button size="mini" type="success">编辑</el-button>
             <el-button size="mini" type="danger">删除</el-button>
@@ -49,9 +115,24 @@
 </template>
 
 <script>
+import Vue from "vue";
+import VJsoneditor from "v-jsoneditor/src/index";
+import { list } from "@/api/inend";
+import { remove } from "@/api/inend";
+import { create } from "@/api/inend";
+import { detail } from "@/api/inend";
+
+Vue.use(VJsoneditor);
 export default {
+  components: {
+    VJsoneditor,
+  },
   name: "InEnd",
   methods: {
+    createResource() {
+      console.log(this.createForm);
+    },
+
     filterType(value, row) {
       return row.type === value;
     },
@@ -59,42 +140,27 @@ export default {
       return row.state === value;
     },
   },
+  created() {
+    list().then((response) => {
+      this.tableData = response.data;
+    });
+  },
   data() {
     return {
-      searchForm: {
-        user: "",
-        region: "",
+      options: {
+        modes: ["tree", "code", "preview"],
+        mode: "code",
+        ace: ace,
       },
-      tableData: [
-        {
-          id: "INEND_5f1b4bb7-7b4c-46fa-b2f2-940d3bd20636",
-          state: 0,
-          type: "MODBUS_TCP_MASTER",
-          name: "ModbusTCPMaster",
-          description: "ModbusTCPMaster",
-          config: {
-            frequency: 3,
-            mode: "TCP",
-            registerParams: [
-              {
-                address: 0,
-                function: 3,
-                quantity: 10,
-              },
-            ],
-            rtuConfig: {
-              baudRate: 115200,
-              uart: "TCP",
-            },
-            slaverId: 1,
-            tcpConfig: {
-              ip: "127.0.0.1",
-              port: 502,
-            },
-            timeout: 10,
-          },
-        },
-      ],
+
+      createDialogVisible: false,
+      createForm: {
+        type: "",
+        name: "",
+        description: "",
+        config: null,
+      },
+      tableData: [],
     };
   },
 };
