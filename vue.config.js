@@ -40,10 +40,7 @@ module.exports = {
         proxy: {
             '/api/v1': {
                 target: 'http://127.0.0.1:2580',
-                changeOrigin: true,
-                pathRewrite: {
-                    '^/api/v1': '/'
-                }
+                changeOrigin: true
             }
         }
     },
