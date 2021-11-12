@@ -7,6 +7,7 @@
         </div>
         <el-button
           type="primary"
+          icon="el-icon-help"
           @click="
             () => {
               this.createDialogVisible = true;
@@ -14,7 +15,9 @@
           "
           >新 建</el-button
         >
-        <el-button type="success">刷 新</el-button>
+        <el-button type="success" @click="refreshList" icon="el-icon-refresh"
+          >刷 新</el-button
+        >
 
         <el-dialog title="" :visible.sync="createDialogVisible" width="800px">
           <el-form :model="createForm">
@@ -89,6 +92,7 @@
         <el-table-column prop="name" label="名称"> </el-table-column>
         <el-table-column prop="description" label="信息"> </el-table-column>
         <el-table-column
+          prop="state"
           label="状态"
           :filters="[
             { text: '正常', value: 1 },
@@ -98,15 +102,18 @@
           width="80px"
         >
           <template slot-scope="scope">
-            <el-tag v-if="scope.state == 1" type="success">正常</el-tag>
+            <el-tag v-if="scope.row.state === 1" type="success">正常</el-tag>
             <el-tag v-else type="danger">异常</el-tag>
           </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作" width="250">
-          <template>
-            <el-button size="mini" type="primary">详情</el-button>
-            <el-button size="mini" type="success">编辑</el-button>
-            <el-button size="mini" type="danger">删除</el-button>
+        <el-table-column fixed="right" label="操作" width="160">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="details(scope.row)"
+              >详情</el-button
+            >
+            <el-button size="mini" type="danger" @click="removeInEnd(scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -129,10 +136,39 @@ export default {
   },
   name: "InEnd",
   methods: {
+    removeInEnd(row) {
+      remove(row.id).then((response) => {
+        Message({
+          message: response.msg,
+          type: "success",
+          duration: 5 * 1000,
+        });
+        this.getList();
+      });
+    },
+    details(row) {
+      detail(row.id).then((response) => {
+        console.log(response);
+      });
+    },
+    refreshList() {
+      this.getList();
+    },
     createResource() {
-      console.log(this.createForm);
+      create(this.createForm).then((response) => {
+        Message({
+          message: response.msg,
+          type: "success",
+          duration: 5 * 1000,
+        });
+      });
     },
 
+    getList() {
+      list().then((response) => {
+        this.tableData = response.data;
+      });
+    },
     filterType(value, row) {
       return row.type === value;
     },
@@ -140,10 +176,9 @@ export default {
       return row.state === value;
     },
   },
+  updated() {},
   created() {
-    list().then((response) => {
-      this.tableData = response.data;
-    });
+    this.getList();
   },
   data() {
     return {
@@ -158,7 +193,7 @@ export default {
         type: "",
         name: "",
         description: "",
-        config: null,
+        config: {},
       },
       tableData: [],
     };

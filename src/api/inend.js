@@ -7,10 +7,16 @@ export function create(data) {
     return request({url: 'inends', method: 'post', data})
 }
 
-export function remove(data) {
-    return request({url: 'inends', method: 'delete', data})
+export function remove(uuid) {
+    return request({
+        method: 'delete',
+        url: 'inends?uuid=' + uuid
+    })
 }
 
 export function detail(data) {
-    return request({url: 'inends', method: 'get', data})
+    return request({
+        method: 'get',
+        url: 'inends?uuid=' + uuid
+    })
 }
