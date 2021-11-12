@@ -135,8 +135,22 @@ export const constantRoutes = [
                 }
             }
         ]
+    }, {
+        path: '/log',
+        component: Layout,
+        redirect: '/log',
+        children: [
+            {
+                path: 'log',
+                name: 'Log',
+                component: () => import ('@/views/log/index'),
+                meta: {
+                    title: '日志管理',
+                    icon: 'el-icon-postcard'
+                }
+            }
+        ]
     },
-
 
     // 404 page must be placed at the end !!!
     {

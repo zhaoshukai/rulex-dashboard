@@ -19,13 +19,24 @@
           >刷 新</el-button
         >
 
-        <el-dialog title="" :visible.sync="createDialogVisible" width="800px">
+        <el-dialog
+          title="新建资源"
+          :visible.sync="createDialogVisible"
+          width="800px"
+          top="2%"
+        >
           <el-form :model="createForm">
             <el-form-item label="资源名称" label-width="90px" label-position="left">
-              <el-input v-model="createForm.name" autocomplete="off"></el-input>
+              <el-input v-model="createForm.name"></el-input>
             </el-form-item>
             <el-form-item label="资源类型" label-width="90px" label-position="left">
-              <el-select v-model="createForm.type" placeholder="资源类型" filterable>
+              <el-select
+                v-model="createForm.type"
+                placeholder="资源类型"
+                filterable
+                style="width: 500px"
+                @change="onSelectChange"
+              >
                 <el-option label="MQTT 协议桥接" value="MQTT"></el-option>
                 <el-option label="HTTP 协议接入" value="HTTP"></el-option>
                 <el-option label="UDP 协议输入" value="UDP"></el-option>
@@ -65,7 +76,7 @@
               "
               >取 消</el-button
             >
-            <el-button type="primary" @click="createResource">提 交</el-button>
+            <el-button type="primary" @click="createInEnd">提 交</el-button>
           </div>
         </el-dialog>
       </el-card>
@@ -128,7 +139,8 @@ import { list } from "@/api/inend";
 import { remove } from "@/api/inend";
 import { create } from "@/api/inend";
 import { detail } from "@/api/inend";
-
+import { Message } from "element-ui";
+import in_types from "./in_type";
 Vue.use(VJsoneditor);
 export default {
   components: {
@@ -136,14 +148,18 @@ export default {
   },
   name: "InEnd",
   methods: {
+    onSelectChange(v) {
+      this.createForm.config = in_types[v];
+    },
     removeInEnd(row) {
+      let thiz = this;
       remove(row.id).then((response) => {
         Message({
           message: response.msg,
           type: "success",
           duration: 5 * 1000,
         });
-        this.getList();
+        thiz.getList();
       });
     },
     details(row) {
@@ -153,14 +169,23 @@ export default {
     },
     refreshList() {
       this.getList();
+      Message({
+        message: "刷新成功",
+        type: "success",
+        duration: 5 * 1000,
+      });
     },
-    createResource() {
+    createInEnd() {
+      let thiz = this;
       create(this.createForm).then((response) => {
         Message({
-          message: response.msg,
+          message: "创建成功",
           type: "success",
           duration: 5 * 1000,
         });
+        this.createDialogVisible = false;
+        this.createForm = {};
+        thiz.getList();
       });
     },
 
@@ -176,7 +201,6 @@ export default {
       return row.state === value;
     },
   },
-  updated() {},
   created() {
     this.getList();
   },
