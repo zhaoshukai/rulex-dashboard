@@ -4,7 +4,7 @@
       <el-row :gutter="24" style="width: 100%; margin-top: 10px">
         <el-col :span="6"
           ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>当前版本</span>
               </div>
@@ -14,7 +14,7 @@
         >
         <el-col :span="6"
           ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>操作系统</span>
               </div>
@@ -24,33 +24,42 @@
         >
         <el-col :span="6"
           ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>内存使用</span>
               </div>
-              <h2>
-                系统:{{ this.systemInfo.system }}-MB/当前: {{ this.systemInfo.alloc }}-MB
-              </h2>
-            </el-card>
-          </div></el-col
-        >
+              <el-progress
+                :percentage="this.systemInfo.system"
+                :color="customColors"
+                :stroke-width="26"
+                style="margin-top: 16px"
+              ></el-progress>
+            </el-card></div
+        ></el-col>
         <el-col :span="6"
-          ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+          ><div class="grid-content">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>磁盘使用</span>
               </div>
-              <h2>{{ this.systemInfo.diskInfo }}%</h2>
-            </el-card>
-          </div></el-col
-        >
+              <div style="text-align: center">
+                <el-progress
+                  :width="64"
+                  :stroke-width="6"
+                  type="circle"
+                  :percentage="this.systemInfo.diskInfo"
+                  :color="customColors"
+                ></el-progress>
+              </div>
+            </el-card></div
+        ></el-col>
       </el-row>
-      <!-- --------------------------------- -->
+      <!-- ---------------资源统计------------------ -->
 
       <el-row :gutter="24" style="width: 100%; margin-top: 10px">
         <el-col :span="6"
           ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>入口总数</span>
               </div>
@@ -60,7 +69,7 @@
         >
         <el-col :span="6"
           ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>规则总数</span>
               </div>
@@ -70,7 +79,7 @@
         >
         <el-col :span="6"
           ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>出口总数</span>
               </div>
@@ -80,7 +89,7 @@
         >
         <el-col :span="6"
           ><div class="grid-content bg-purple">
-            <el-card shadow="always" class="box-card">
+            <el-card shadow="always" class="box-card" style="height: 160px">
               <div slot="header" class="clearfix">
                 <span>插件总数</span>
               </div>
@@ -89,8 +98,52 @@
           </div></el-col
         >
       </el-row>
+      <!-- ------------操作统计---------------- -->
 
-      <el-table :data="logs" border style="width: 100%; margin-top: 10px">
+      <el-row :gutter="24" style="width: 100%; margin-top: 10px">
+        <el-col :span="6"
+          ><div class="grid-content bg-purple">
+            <el-card shadow="always" class="box-card" style="height: 160px">
+              <div slot="header" class="clearfix">
+                <span>输入成功</span>
+              </div>
+              <h2>{{ resourceCount.inends }}</h2>
+            </el-card>
+          </div></el-col
+        >
+        <el-col :span="6"
+          ><div class="grid-content bg-purple">
+            <el-card shadow="always" class="box-card" style="height: 160px">
+              <div slot="header" class="clearfix">
+                <span>输入失败</span>
+              </div>
+              <h2>{{ resourceCount.rules }}</h2>
+            </el-card>
+          </div></el-col
+        >
+        <el-col :span="6"
+          ><div class="grid-content bg-purple">
+            <el-card shadow="always" class="box-card" style="height: 160px">
+              <div slot="header" class="clearfix">
+                <span>输出成功</span>
+              </div>
+              <h2>{{ resourceCount.outends }}</h2>
+            </el-card>
+          </div></el-col
+        >
+        <el-col :span="6"
+          ><div class="grid-content bg-purple">
+            <el-card shadow="always" class="box-card" style="height: 160px">
+              <div slot="header" class="clearfix">
+                <span>输出失败</span>
+              </div>
+              <h2>{{ resourceCount.plugins }}</h2>
+            </el-card>
+          </div></el-col
+        >
+      </el-row>
+
+      <el-table :data="logs" border style="width: 100%; margin-top: 10px" height="400">
         <el-table-column prop="content" label="近期日志"> </el-table-column>
       </el-table>
     </el-main>
@@ -169,6 +222,16 @@ export default {
         version: "",
       },
       logs: [],
+      //
+      // 进度条颜色
+      //
+      customColors: [
+        { color: "#58D68D", percentage: 20 },
+        { color: "#27AE60", percentage: 40 },
+        { color: "#D4AC0D", percentage: 60 },
+        { color: "#E59866", percentage: 80 },
+        { color: "#D35400", percentage: 100 },
+      ],
     };
   },
 };
