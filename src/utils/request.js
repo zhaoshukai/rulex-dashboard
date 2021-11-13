@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {MessageBox, Message} from 'element-ui'
+import {Message} from 'element-ui'
 import store from '@/store'
 import {getToken} from '@/utils/auth'
 
@@ -8,25 +8,25 @@ const service = axios.create({
     baseURL: process.env.VUE_APP_BASE_API,
     // url = base url + request url
     // withCredentials: true, // send cookies when cross-domain requests
-    timeout: 5000 // request timeout
+    timeout: 5000
 })
 
 // request interceptor
-service.interceptors.request.use(config => { // do something before request is sent
-
+service.interceptors.request.use(config => {
     if (store.getters.token) {
-        // let each request carry token
-        // ['X-Token'] is a custom headers key
-        // please modify it according to the actual situation
         config.headers['X-Token'] = getToken()
     }
     return config
-}, error => { // do something with request error
-    console.log(error) // for debug
+}, error => {
+    console.log(error)
     return Promise.reject(error)
 })
 
 // response interceptor
+//
+// 这里比较坑，axios这个库的状态码全部是在业务层判断的，所以不得不在业务层设计状态码，也就是说所有的请求都是200，然后code来区分
+// 这里不遵守http的语义我觉得很拉垮,导致我不得不改自己的后端代码来配合这套东西。  ---- 2021-11-13@wwhai
+//
 service.interceptors.response.use(response => {
     const res = response.data
     if (res.code !== 200) {
@@ -36,13 +36,13 @@ service.interceptors.response.use(response => {
             duration: 5 * 1000
         })
         return Promise.reject(new Error(res.msg || 'Error'))
-    } else {
-        return res
     }
+    return res
+
 }, error => {
-    console.log('err' + error)
+    console.log('service.interceptors.response error: ' + error)
     Message({
-        message: error.msg,
+        message: error,
         type: 'error',
         duration: 5 * 1000
     })

@@ -142,10 +142,24 @@
           </div></el-col
         >
       </el-row>
-
-      <el-table :data="logs" border style="width: 100%; margin-top: 10px" height="400">
-        <el-table-column prop="content" label="近期日志"> </el-table-column>
-      </el-table>
+      <el-row :gutter="24" style="width: 100%; margin-top: 10px">
+        <el-card class="box-card" style="width: 100%; margin-top: 10px">
+          <div slot="header" class="clearfix">
+            <span>近期日志</span>
+            <el-button style="float: right; padding: 3px 0" type="text"
+              >清空日志</el-button
+            >
+          </div>
+          <el-table
+            :data="logs"
+            border
+            style="width: 100%; margin-top: 10px"
+            height="500"
+          >
+            <el-table-column prop="content"> </el-table-column>
+          </el-table>
+        </el-card>
+      </el-row>
     </el-main>
   </el-container>
 </template>

@@ -25,11 +25,26 @@
           width="800px"
           top="2%"
         >
-          <el-form :model="createForm">
-            <el-form-item label="资源名称" label-width="90px" label-position="left">
+          <el-form
+            :model="createForm"
+            status-icon
+            :rules="createFormRules"
+            ref="createForm"
+          >
+            <el-form-item
+              label="资源名称"
+              label-width="90px"
+              label-position="left"
+              prop="name"
+            >
               <el-input v-model="createForm.name"></el-input>
             </el-form-item>
-            <el-form-item label="资源类型" label-width="90px" label-position="left">
+            <el-form-item
+              label="资源类型"
+              label-width="90px"
+              label-position="left"
+              prop="type"
+            >
               <el-select
                 v-model="createForm.type"
                 placeholder="资源类型"
@@ -54,7 +69,12 @@
                 <el-option label="SNMP 协议接入" value="SNMP_SERVER"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="资源配置" label-width="90px" label-position="left">
+            <el-form-item
+              label="资源配置"
+              label-width="90px"
+              label-position="left"
+              prop="config"
+            >
               <v-jsoneditor
                 style="height: 400px"
                 v-model="createForm.config"
@@ -62,7 +82,12 @@
               ></v-jsoneditor>
             </el-form-item>
 
-            <el-form-item label="备注信息" label-width="90px" label-position="left">
+            <el-form-item
+              label="备注信息"
+              label-width="90px"
+              label-position="left"
+              prop="description"
+            >
               <el-input v-model="createForm.description" autocomplete="off"></el-input>
             </el-form-item>
           </el-form>
@@ -177,29 +202,39 @@ export default {
     },
     createInEnd() {
       let thiz = this;
-      create(this.createForm).then((response) => {
-        Message({
-          message: "创建成功",
-          type: "success",
-          duration: 5 * 1000,
-        });
-        this.createDialogVisible = false;
-        this.createForm = {};
-        thiz.getList();
+      this.$refs["createForm"].validate((valid) => {
+        if (valid) {
+          create(this.createForm).then((_response) => {
+            Message({
+              message: "创建成功",
+              type: "success",
+              duration: 5 * 1000,
+            });
+            this.createDialogVisible = false;
+            this.createForm = {};
+            thiz.getList();
+          });
+          return true;
+        } else {
+          return false;
+        }
       });
     },
-
+    //
     getList() {
       list().then((response) => {
         this.tableData = response.data;
       });
     },
+    //
     filterType(value, row) {
       return row.type === value;
     },
+    //
     filterState(value, row) {
       return row.state === value;
     },
+    //
   },
   created() {
     this.getList();
@@ -210,15 +245,28 @@ export default {
         modes: ["tree", "code", "preview"],
         mode: "code",
         ace: ace,
+        templates: [],
       },
 
       createDialogVisible: false,
       createForm: {
-        type: "",
-        name: "",
-        description: "",
-        config: {},
+        type: null,
+        name: null,
+        description: null,
+        config: {
+          example_config_key: "example_config_value", //example
+        },
       },
+
+      createFormRules: {
+        type: [{ required: true, message: "输入类型", trigger: ["blur", "change"] }],
+        name: [{ required: true, message: "输入名称", trigger: ["blur", "change"] }],
+        description: [
+          { required: true, message: "输入描述", trigger: ["blur", "change"] },
+        ],
+        config: [{ required: true, message: "输入配置", trigger: ["blur", "change"] }],
+      },
+
       tableData: [],
     };
   },
