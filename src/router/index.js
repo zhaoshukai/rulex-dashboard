@@ -76,14 +76,14 @@ export const constantRoutes = [
             }
         ]
     }, {
-        path: '/outend',
+        path: '/rule',
         component: Layout,
-        redirect: '/outend',
+        redirect: '/rule',
         children: [
             {
-                path: 'outend',
-                name: 'OutEnd',
-                component: () => import ('@/views/outend/index'),
+                path: 'rule',
+                name: 'Rule',
+                component: () => import ('@/views/rule/index'),
                 meta: {
                     title: '规则管理',
                     icon: 'el-icon-s-grid'
