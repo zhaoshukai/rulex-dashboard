@@ -22,8 +22,10 @@
         <el-dialog
           title="新建规则"
           :visible.sync="createDialogVisible"
-          width="800px"
+          width="1000px"
           top="2%"
+          :show-close="false"
+          :before-close="() => {}"
         >
           <el-form
             :model="createForm"
@@ -37,7 +39,43 @@
               label-position="left"
               prop="name"
             >
+              <!-- --- -->
               <el-input v-model="createForm.name"></el-input>
+              <!-- --- -->
+            </el-form-item>
+            <el-form-item
+              label="输入资源"
+              label-width="90px"
+              label-position="left"
+              prop="from"
+            >
+              <el-select
+                v-model="createForm.from"
+                multiple
+                placeholder="请选择"
+                style="width: 800px"
+              >
+                <el-option
+                  v-for="item in [{ label: 'k', value: 'v' }]"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option> </el-select
+            ></el-form-item>
+            <el-form-item
+              label="规则回调"
+              label-width="90px"
+              label-position="left"
+              prop="config"
+            >
+              <!-- --- -->
+              <codemirror
+                v-model="createForm.actions"
+                :options="options"
+                style="line-height: 1"
+              />
+              <!-- --- -->
             </el-form-item>
 
             <el-form-item
@@ -47,7 +85,11 @@
               prop="config"
             >
               <!-- --- -->
-              <codemirror v-model="luaScript" :options="options" />
+              <codemirror
+                v-model="createForm.success"
+                :options="options"
+                style="line-height: 1"
+              />
               <!-- --- -->
             </el-form-item>
 
@@ -58,18 +100,11 @@
               prop="config"
             >
               <!-- --- -->
-              <codemirror v-model="luaScript" :options="options" />
-              <!-- --- -->
-            </el-form-item>
-
-            <el-form-item
-              label="规则回调"
-              label-width="90px"
-              label-position="left"
-              prop="config"
-            >
-              <!-- --- -->
-              <codemirror v-model="luaScript" :options="options" />
+              <codemirror
+                v-model="createForm.failed"
+                :options="options"
+                style="line-height: 1"
+              />
               <!-- --- -->
             </el-form-item>
 
@@ -92,6 +127,7 @@
               "
               >取 消</el-button
             >
+            <el-button type="warning" @click="() => {}">语法验证</el-button>
             <el-button type="primary" @click="createRule">提 交</el-button>
           </div>
         </el-dialog>
@@ -118,6 +154,8 @@
 <script>
 import { codemirror } from "vue-codemirror";
 import "codemirror/lib/codemirror.css";
+import "codemirror/theme/darcula.css";
+import "codemirror/mode/lua/lua.js";
 
 import { Message } from "element-ui";
 
@@ -162,29 +200,57 @@ export default {
       options: {
         tabSize: 4,
         mode: "text/x-lua",
-        theme: "base16-dark",
+        theme: "darcula",
         lineNumbers: true,
         line: true,
+        lint: true,
+        styleActiveLine: true,
+        lineNumbers: true,
+        foldGutter: true,
+        styleSelectedText: true,
+        matchBrackets: true,
+        showCursorWhenSelecting: true,
+        gutters: ["CodeMirror-lint-markers"],
+        hintOptions: {
+          completeSingle: true,
+        },
+        extraKeys: {
+          Tab: function (cm) {
+            var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+            cm.replaceSelection(spaces);
+          },
+        },
+        showHint: true,
       },
-      luaScript: "",
-
+      //
       createDialogVisible: false,
       createForm: {
-        name: "just_a_test",
+        name: "",
         description: "",
-        from: ["INEND_9042483a-d5f4-436b-92bd-cc6e7773c5cc"],
-        actions: 'Actions = {function(data) print("[lua] ------------->",data)end}',
-        failed: 'function Failed(error) print("[lua] call error:",error)end',
-        success: 'function Success() print("[lua] call success")end',
+        from: [],
+        actions:
+          "--\n--规则回调，高级功能请查看文档:https://wwhai.github.io/rulex_doc_html/index.html\n--\nActions = {\n\tfunction(data)\n\t\tprint(data)\n\t\treturn true, data\n\tend\n}",
+        failed:
+          '--\n--失败回调，高级功能请查看文档:https://wwhai.github.io/rulex_doc_html/index.html\n--\nfunction Failed(error)\n\tprint("error)\nend\n',
+        success:
+          '--\n--成功回调，高级功能请查看文档:https://wwhai.github.io/rulex_doc_html/index.html\n--\nfunction Success()\n\tprint("success")\nend\n',
       },
 
       createFormRules: {
-        type: [{ required: true, message: "输入类型", trigger: ["blur", "change"] }],
         name: [{ required: true, message: "输入名称", trigger: ["blur", "change"] }],
         description: [
           { required: true, message: "输入描述", trigger: ["blur", "change"] },
         ],
-        config: [{ required: true, message: "输入配置", trigger: ["blur", "change"] }],
+        from: [{ required: true, message: "输入资源入口", trigger: ["blur", "change"] }],
+        actions: [
+          { required: true, message: "输入规则回调", trigger: ["blur", "change"] },
+        ],
+        failed: [
+          { required: true, message: "输入成功回调", trigger: ["blur", "change"] },
+        ],
+        success: [
+          { required: true, message: "输入失败回调", trigger: ["blur", "change"] },
+        ],
       },
 
       tableData: [],

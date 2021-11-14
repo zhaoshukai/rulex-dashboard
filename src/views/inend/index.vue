@@ -24,6 +24,8 @@
           :visible.sync="createDialogVisible"
           width="800px"
           top="2%"
+          :show-close="false"
+          :before-close="() => {}"
         >
           <el-form
             :model="createForm"
