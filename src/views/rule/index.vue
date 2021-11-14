@@ -52,17 +52,22 @@
               <el-select
                 v-model="createForm.from"
                 multiple
-                placeholder="请选择"
+                placeholder="请选择数据源"
                 style="width: 800px"
               >
                 <el-option
-                  v-for="item in [{ label: 'k', value: 'v' }]"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                  v-for="item in inEnds"
+                  :key="item.uuid"
+                  :label="item.name"
+                  :value="item.uuid"
                 >
-                </el-option> </el-select
-            ></el-form-item>
+                  <span style="float: left">{{ item.uuid }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{
+                    item.name
+                  }}</span>
+                </el-option>
+              </el-select></el-form-item
+            >
             <el-form-item
               label="规则回调"
               label-width="90px"
@@ -132,10 +137,10 @@
           </div>
         </el-dialog>
       </el-card>
-      <el-table :data="tableData" border style="width: 100%">
-        <el-table-column prop="id" label="UUID" width="340px"> </el-table-column>
-        <el-table-column prop="name" label="名称"> </el-table-column>
-        <el-table-column prop="description" label="信息"> </el-table-column>
+      <el-table :data="rulesTableData" border style="width: 100%">
+        <el-table-column prop="uuid" label="UUID" width="360"> </el-table-column>
+        <el-table-column prop="name" label="名称" width="300"> </el-table-column>
+        <el-table-column prop="description" label="备注信息"> </el-table-column>
         <el-table-column fixed="right" label="操作" width="160">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="details(scope.row)"
@@ -158,7 +163,11 @@ import "codemirror/theme/darcula.css";
 import "codemirror/mode/lua/lua.js";
 
 import { Message } from "element-ui";
-
+import { list as inEndList } from "@/api/inend";
+import { list } from "@/api/rule";
+import { remove } from "@/api/rule";
+import { create } from "@/api/rule";
+import { detail } from "@/api/rule";
 export default {
   components: {
     codemirror,
@@ -166,9 +175,26 @@ export default {
   name: "Rule",
   methods: {
     onSelectChange(v) {},
-    removeRule(row) {},
-    details(row) {},
-    refreshList() {},
+    removeRule(row) {
+      let thiz = this;
+      remove(row.uuid).then((response) => {
+        Message({
+          message: response.msg,
+          type: "success",
+          duration: 5 * 1000,
+        });
+        thiz.getRuleList();
+      });
+    },
+    details(row) {
+      detail(row.uuid).then((response) => {
+        console.log(response);
+      });
+    },
+    refreshList() {
+      this.getRuleList();
+      this.getInEndList();
+    },
     createRule() {
       let thiz = this;
       this.$refs["createForm"].validate((valid) => {
@@ -179,9 +205,9 @@ export default {
               type: "success",
               duration: 5 * 1000,
             });
-            this.createDialogVisible = false;
-            this.createForm = {};
-            thiz.getList();
+            thiz.createDialogVisible = false;
+            thiz.createForm = {};
+            thiz.getRuleList();
           });
           return true;
         } else {
@@ -190,10 +216,20 @@ export default {
       });
     },
     //
-    getList() {},
+    getRuleList() {
+      list().then((response) => {
+        this.rulesTableData = response.data;
+      });
+    },
+    getInEndList() {
+      inEndList().then((response) => {
+        this.inEnds = response.data;
+      });
+    },
   },
   created() {
-    this.getList();
+    this.getRuleList();
+    this.getInEndList();
   },
   data() {
     return {
@@ -231,11 +267,11 @@ export default {
         actions:
           "--\n--规则回调，高级功能请查看文档:https://wwhai.github.io/rulex_doc_html/index.html\n--\nActions = {\n\tfunction(data)\n\t\tprint(data)\n\t\treturn true, data\n\tend\n}",
         failed:
-          '--\n--失败回调，高级功能请查看文档:https://wwhai.github.io/rulex_doc_html/index.html\n--\nfunction Failed(error)\n\tprint("error)\nend\n',
+          "--\n--失败回调，高级功能请查看文档:https://wwhai.github.io/rulex_doc_html/index.html\n--\nfunction Failed(error)\n\tprint(error)\nend\n",
         success:
           '--\n--成功回调，高级功能请查看文档:https://wwhai.github.io/rulex_doc_html/index.html\n--\nfunction Success()\n\tprint("success")\nend\n',
       },
-
+      inEnds: [],
       createFormRules: {
         name: [{ required: true, message: "输入名称", trigger: ["blur", "change"] }],
         description: [
@@ -253,7 +289,7 @@ export default {
         ],
       },
 
-      tableData: [],
+      rulesTableData: [],
     };
   },
 };

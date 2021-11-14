@@ -108,7 +108,7 @@
         </el-dialog>
       </el-card>
       <el-table :data="tableData" border style="width: 100%">
-        <el-table-column prop="id" label="UUID" width="340px"> </el-table-column>
+        <el-table-column prop="uuid" label="UUID" width="340px"> </el-table-column>
         <el-table-column
           prop="type"
           label="类型"
